@@ -19,14 +19,15 @@ const bindValue = (value, el, binding, vnode) => {
   const focus = !binding.modifiers.focus === true
   const once = binding.modifiers.once === true
   const allow = binding.modifiers.allow === true
-  if (avoid) {
+  if (avoid && !allow) {
     objAvoided.push(el, el)
-    return
   } else if (allow) {
     objAvoided = objAvoided.filter(obj => obj !== el)
     objAllowed.push(el, el)
+    mappingFunctions({b: value, push, once, focus, el: vnode.elm})
+  } else {
+    mappingFunctions({b: value, push, once, focus, el: vnode.elm})
   }
-  mappingFunctions({b: value, push, once, focus, el: vnode.elm})
 }
 
 const unbindValue = (value, el) => {
@@ -170,7 +171,7 @@ const filteringElement = (pKey) => {
   const elementClassAvoid = elementSeparate.avoidedClasses
   const filterTypeAvoid = elementTypeAvoid.find(r => document.activeElement && r === document.activeElement.tagName.toLowerCase())
   const filterClassAvoid = elementClassAvoid.find(r => document.activeElement && r === '.' + document.activeElement.className.toLowerCase())
-  return objectAllow || (!objectAvoid && mapFunctions[decodedKey] && !filterTypeAvoid && !filterClassAvoid)
+  return (objectAllow && mapFunctions[decodedKey]) || (!objectAvoid && mapFunctions[decodedKey] && !filterTypeAvoid && !filterClassAvoid)
 }
 
 const checkElementType = () => {
@@ -187,7 +188,6 @@ const checkElementType = () => {
       elmTypeAvoid.push(r)
     }
   })
-
   return {avoidedTypes: elmTypeAvoid, avoidedClasses: elmClassAvoid}
 }
 
