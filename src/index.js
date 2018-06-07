@@ -1,6 +1,7 @@
 let ShortKey = {}
 let mapFunctions = {}
 let objAvoided = []
+let objAllowed = []
 let elementAvoided = []
 let keyPressed = false
 
@@ -17,11 +18,15 @@ const bindValue = (value, el, binding, vnode) => {
   const avoid = binding.modifiers.avoid === true
   const focus = !binding.modifiers.focus === true
   const once = binding.modifiers.once === true
+  const allow = binding.modifiers.allow === true
   if (avoid) {
-    objAvoided.push(el)
-  } else {
-    mappingFunctions({b: value, push, once, focus, el: vnode.elm})
+    objAvoided.push(el, el)
+    return
+  } else if (allow) {
+    objAvoided = objAvoided.filter(obj => obj !== el)
+    objAllowed.push(el, el)
   }
+  mappingFunctions({b: value, push, once, focus, el: vnode.elm})
 }
 
 const unbindValue = (value, el) => {
@@ -158,13 +163,14 @@ const mappingFunctions = ({b, push, once, focus, el}) => {
 
 const filteringElement = (pKey) => {
   const decodedKey = ShortKey.decodeKey(pKey)
+  const objectAllow = objAllowed.find(r => r === document.activeElement)
   const objectAvoid = objAvoided.find(r => r === document.activeElement)
   const elementSeparate = checkElementType()
   const elementTypeAvoid = elementSeparate.avoidedTypes
   const elementClassAvoid = elementSeparate.avoidedClasses
   const filterTypeAvoid = elementTypeAvoid.find(r => document.activeElement && r === document.activeElement.tagName.toLowerCase())
   const filterClassAvoid = elementClassAvoid.find(r => document.activeElement && r === '.' + document.activeElement.className.toLowerCase())
-  return !objectAvoid && mapFunctions[decodedKey] && !filterTypeAvoid && !filterClassAvoid
+  return objectAllow || (!objectAvoid && mapFunctions[decodedKey] && !filterTypeAvoid && !filterClassAvoid)
 }
 
 const checkElementType = () => {
