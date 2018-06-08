@@ -19,12 +19,11 @@ const bindValue = (value, el, binding, vnode) => {
   const focus = !binding.modifiers.focus === true
   const once = binding.modifiers.once === true
   const allow = binding.modifiers.allow === true
-  if (avoid && !allow) {
+  if (avoid) {
     objAvoided.push(el, el)
   } else if (allow) {
     objAvoided = objAvoided.filter(obj => obj !== el)
     objAllowed.push(el, el)
-    mappingFunctions({b: value, push, once, focus, el: vnode.elm})
   } else {
     mappingFunctions({b: value, push, once, focus, el: vnode.elm})
   }
