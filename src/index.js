@@ -20,10 +20,10 @@ const bindValue = (value, el, binding, vnode) => {
   const once = binding.modifiers.once === true
   const allow = binding.modifiers.allow === true
   if (avoid) {
-    objAvoided.push(el, el)
+    objAvoided.push(el)
   } else if (allow) {
     objAvoided = objAvoided.filter(obj => obj !== el)
-    objAllowed.push(el, el)
+    objAllowed = Array.from(new Set([...objAllowed, el]))
   } else {
     mappingFunctions({b: value, push, once, focus, el: vnode.elm})
   }
@@ -39,7 +39,10 @@ const unbindValue = (value, el) => {
       delete mapFunctions[k]
     }
 
-    objAvoided = objAvoided.filter((itm) => {
+    objAvoided = objAvoided.filter(itm => {
+      return !itm === el;
+    })
+    objAllowed = objAllowed.filter(itm => {
       return !itm === el;
     })
   }
